@@ -8,7 +8,7 @@ DynamoQueue features:
 
 * Each job will be received by one worker, once, and only once
 * The status of jobs in the queue can be tracked by their job ID
-* Jobs will be processed in the order\* in which they are added (\*see [Job Processing Order](#order))
+* Jobs will be processed in the order\* in which they are added (\*see [Job Processing Order](#job-processing-order))
 * All the scalability benefits of Amazon’s DynamoDB
 * Jobs can be up to 400 KB in size (see [Messages](#messages))
 
@@ -21,7 +21,7 @@ Simplest is to add the following to `composer.json`:
 ```javascript
 {
     "require": {
-        "NSmithUK/dynamo-queue-php": "~1.0-dev"
+        "NSmithUK/dynamo-queue-php": "dev-master"
     }
 }
 ```
@@ -109,7 +109,7 @@ $queue->enqueue( 'DynamoQueueTests\Processors\EchoMessage', "Test Message", "id-
 ```
 
 
-[Messages](id:messages)
+Messages
 ------------
 As per DynamoDB limits, each individual job - including all metadata - cannot be greater than 400 KB.
 
@@ -121,6 +121,6 @@ This can be aided by:
 * Storing the main message elsewhere - in S3 or a database for example - then just passing a reference to the message through the queue.
 
 
-[Job Processing Order](id:order)
+Job Processing Order
 ------------
 To aid scalability DynamoQueue supports distributing jobs across partitions. In DynamoQueue’s default configuration of a single partition, jobs are processed in exactly the order they were added to the queue. When more than partition is used jobs are processed in approximately the order they added. The greater the number of partitions used, the lower the correlation between when they were added and when they are processed.

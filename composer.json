@@ -1,5 +1,5 @@
 {
-    "name": "NSmithUK/dynamo-queue-php",
+    "name": "nsmithuk/dynamo-queue-php",
     "type": "library",
     "require": {
         "php": ">=5.5",

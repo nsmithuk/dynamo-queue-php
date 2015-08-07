@@ -2,15 +2,15 @@
 
 Overview
 ------------
-DynamoQueue is a DynamoDB backed queue liberty. The PHP version provides both queueing and worker components.
+DynamoQueue is a DynamoDB backed queue library. The PHP version provides both queueing and worker components.
 
 DynamoQueue features:
 
-* Each job will be received by one worker, once, and only once
-* The status of jobs in the queue can be tracked by their job ID
-* Jobs will be processed in the order\* in which they are added (\*see [Job Processing Order](#job-processing-order))
-* All the scalability benefits of Amazon’s DynamoDB
-* Jobs can be up to 400 KB in size (see [Messages](#messages))
+* Each job will be received by one worker, once, and only once.
+* The status of jobs in the queue can be tracked by their job ID.
+* Jobs will be processed in the order\* in which they are added (\*see [Job Processing Order](#job-processing-order)).
+* All the scalability benefits of Amazon’s DynamoDB.
+* Jobs can be up to 400 KB in size (see [Messages](#messages)).
 
 
 Installation
@@ -73,16 +73,18 @@ Adding jobs to the queue
 Assuming you've installed DynamoQueue via Composer, the DynamoQueue client will be available via the autoloader.
 
 ```php
+// First create an instance of the DynamoDbClient from Amazon’s SDK
 $dynamoDb = new \Aws\DynamoDb\DynamoDbClient([
     'version' => '2012-08-10',
-    'region' => '\<region>',
+    'region' => '<region>',
     'credentials' => [
-        'key'    => '\<key>',
-        'secret' => '\<secret>',
+        'key'    => '<key>',
+        'secret' => '<secret>',
     ]
 ]);
 
-$queue = new \DynamoQueue\Queue\Client( $dynamoDb, [ 'table_name' => '\<table name>' ] );
+// Create an instance of the DynamoQueue client
+$queue = new \DynamoQueue\Queue\Client( $dynamoDb, [ 'table_name' => '<table name>' ] );
 ```
 
 You can then add jobs to the queue using 

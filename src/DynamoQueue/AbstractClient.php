@@ -2,6 +2,7 @@
 namespace DynamoQueue;
 
 use Aws\DynamoDb\DynamoDbClient;
+use Aws\DynamoDb\WriteRequestBatch;
 
 abstract class AbstractClient {
 
@@ -277,6 +278,55 @@ abstract class AbstractClient {
         //---
 
         return ( empty($errors) ) ? true : $errors;
+
+    } // function
+
+    /**
+     * Removes finished ( done or error ) jobs from a table.
+     *
+     * @param int $ttl The time in - in milliseconds - to leave a finished job before removing it.
+     * @return int
+     */
+    public function cleanupTable( $ttl = 0 ){
+
+        // Create a Scan iterator for finding finished jobs
+        $scan = $this->client->getPaginator('Scan', [
+            'TableName' => $this->config['table_name'],
+            'ProjectionExpression' => 'id, #state',
+            'ExpressionAttributeNames' => [
+                '#state' => 'state',
+                '#updated' => 'updated',
+            ],
+            'ExpressionAttributeValues' => [
+                ':done' => [ 'S' => AbstractJob::STATE_DONE ],
+                ':error' => [ 'S' => AbstractJob::STATE_ERROR ],
+                ':notUpdatedSince' => [ 'N' => (string)(round(microtime(true) * 1000) - $ttl) ],
+            ],
+            'FilterExpression' => '#state IN (:done, :error) AND #updated < :notUpdatedSince',
+        ]);
+
+        //---
+
+        // Create a WriteRequestBatch for deleting the expired jobs
+        $batch = new WriteRequestBatch($this->client);
+
+        //---
+
+        $deletedJobs = 0;
+
+        foreach ($scan->search('Items') as $item) {
+
+            $batch->delete( [ 'id'=>$item['id'] ], $this->config['table_name'] );
+            $deletedJobs++;
+
+        }
+
+        // Delete any remaining jobs that were not auto-flushed
+        $batch->flush();
+
+        //---
+
+        return $deletedJobs;
 
     } // function
 

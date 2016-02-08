@@ -1,6 +1,7 @@
 <?php
 namespace DynamoQueue;
 
+use Exception;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\WriteRequestBatch;
 
@@ -308,7 +309,11 @@ abstract class AbstractClient {
         //---
 
         // Create a WriteRequestBatch for deleting the expired jobs
-        $batch = new WriteRequestBatch($this->client);
+        $batch = new WriteRequestBatch($this->client, [
+            'error' => function($v){
+                if( $v instanceof Exception ){ throw $v; }
+            }
+        ]);
 
         //---
 
